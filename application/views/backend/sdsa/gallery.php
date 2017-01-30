@@ -542,7 +542,7 @@ ul.tsc_pagination li a.current
             <div class="col-sm-12">
             	
             </div>
-            <!--<form class="dropzone" enctype="multipart/form-data" action="<?php echo base_url();?>index.php?sdsa/upload_photo" method="post">-->
+            
             <div class="col-sm-6">
             	<div class="form-group">
             		<label class="control-label">Project</label>
