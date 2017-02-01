@@ -20,7 +20,7 @@ class Sdsa extends CI_Controller
 		$this->load->database();
         $this->load->library('session');
 		$this->load->library('zip');
-		$this->load->helper('zipArchive');
+		//$this->load->helper('zipArchive');
 		
        /*cache control*/
 		$this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
@@ -232,6 +232,117 @@ class Sdsa extends CI_Controller
 		$this->session->set_flashdata('flash_message',get_phrase('reinstated_successful'));
 		redirect(base_url() . 'index.php?sdsa/search_photo/', 'refresh');
 		
+	}
+	
+	function projects($param1="",$param2=""){
+        if ($this->session->userdata('sdsa_login') != 1)
+            redirect(base_url(), 'refresh');
+		
+		if($param1==='add_project'){
+			$data['name'] = $this->input->post('pname');
+			$data['num'] = $this->input->post('num');
+			
+			//check if project exists
+			
+			$p_check = $this->db->get_where('projects',array('num'=>$this->input->post('num')))->num_rows();
+			
+			if($p_check===0){
+				$this->db->insert('projects',$data);
+				
+				$this->session->set_flashdata('flash_message',get_phrase('project_created_successfully'));
+			}else{
+				$this->session->set_flashdata('flash_message',get_phrase('failure_cannot_create_duplicate'));
+			}
+			
+			
+		}
+		
+		if($param1==="delete"){
+			
+			//check if any image not accepted
+			$project = $this->db->get_where('projects',array('projects_id'=>$param2))->row()->num;
+			
+			$pending_check = $this->db->get_where('files',array('group'=>$project,'status<>'=>2))->num_rows();
+			
+			if($pending_check===0){
+				$this->db->where(array('projects_id'=>$param2));
+			
+				$this->db->delete('projects');
+			
+				$this->session->set_flashdata('flash_message',get_phrase('project_deleted'));
+			}else{
+				$this->session->set_flashdata('flash_message',get_phrase('delete_failure_unprocessed_images'));
+			}
+			
+			
+		}
+		
+		if($param1==='link_project'){
+			
+			$this->db->where(array('num'=>$this->input->post('num')));
+			
+			$data[$this->input->post('link_type')] = $param2;
+			
+			$this->db->update('projects',$data);
+			
+			$this->session->set_flashdata('flash_message',get_phrase('project_linked_successfully'));
+		}
+		
+		
+		redirect(base_url() . 'index.php?sdsa/manage_profile/', 'refresh');
+		
+	}	
+	function manage_profile($param1="",$param2="",$param3=""){
+		if ($this->session->userdata('sdsa_login') != 1)
+            redirect(base_url(), 'refresh');
+		
+		if($param1==='add_user'){
+			$data['name'] = $this->input->post('fname');
+			$data['email'] = $this->input->post('email');
+			$data['level'] = $this->input->post('level');
+			$data['password'] = $this->input->post('password');
+			
+			//Check if email exists
+			$e_check = $this->db->get_where('users',array('email'=>$this->input->post('email')))->num_rows();
+			
+			if($e_check===0){
+				$this->db->insert('users',$data);
+				
+				$this->session->set_flashdata('flash_message',get_phrase('user_created_successfully'));
+					
+			}else{
+				
+				$this->session->set_flashdata('flash_message',get_phrase('process_failed_email_exists'));
+			}
+			
+			redirect(base_url() . 'index.php?sdsa/manage_profile/', 'refresh');	
+		}
+		
+		if($param1==='delete'){
+				
+			
+				//Check if an project is link
+				
+				$level = array('none','none','sdsa','facilitator');
+				
+				$link_check = $this->db->get_where('projects',array($level[$param2]=>$param3))->num_rows();
+				
+				if($link_check===0){
+					$this->db->where(array('users_id'=>$param3));
+				
+					$this->db->delete('users');
+					
+					$this->session->set_flashdata('flash_message',get_phrase('user_deleted'));
+				}else{
+					$this->session->set_flashdata('flash_message',get_phrase('user_with_linkage_cannot_delete'));	
+				}
+				
+				redirect(base_url() . 'index.php?sdsa/manage_profile/', 'refresh');	
+		}
+		
+		$page_data['page_name']  = 'manage_profile';
+        $page_data['page_title'] = get_phrase('manage_profile');
+        $this->load->view('backend/index', $page_data);
 	}
 	
 	function download_all(){
