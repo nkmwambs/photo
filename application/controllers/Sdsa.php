@@ -19,7 +19,8 @@ class Sdsa extends CI_Controller
 		parent::__construct();
 		$this->load->database();
         $this->load->library('session');
-		$this->load->helper('watermark');
+		$this->load->library('zip');
+		$this->load->helper('zipArchive');
 		
        /*cache control*/
 		$this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
@@ -125,50 +126,57 @@ class Sdsa extends CI_Controller
         $this->load->view('backend/index', $page_data);		
 	}
     
+	function upload_zone(){
+        if ($this->session->userdata('sdsa_login') != 1)
+            redirect(base_url(), 'refresh');
+	
+			
+        $page_data['page_name']  = 'upload_zone';
+        $page_data['page_title'] = get_phrase('upload_zone');
+        $this->load->view('backend/index', $page_data);		
+	}
+	
   	
 	function upload_photo(){
-		$data = array();
-		if($this->input->post('fileSubmit') && !empty($_FILES['userFiles']['name'])){
-			$filesCount = count($_FILES['userFiles']['name']);
-			for($i = 0; $i < $filesCount; $i++){
-				$_FILES['userFile']['name'] = $_FILES['userFiles']['name'][$i];
-				$_FILES['userFile']['type'] = $_FILES['userFiles']['type'][$i];
-				$_FILES['userFile']['tmp_name'] = $_FILES['userFiles']['tmp_name'][$i];
-				$_FILES['userFile']['error'] = $_FILES['userFiles']['error'][$i];
-				$_FILES['userFile']['size'] = $_FILES['userFiles']['size'][$i];
+
+				$project  = substr($_FILES['file']['name'], 0,6);
 				
-				if(!file_exists('uploads/photos/'.$this->input->post('project'))){
-					mkdir('uploads/photos/'.$this->input->post('project'));
+				if(!file_exists('uploads/photos/'.$project.'/')){
+					mkdir('uploads/photos/'.$project.'/');
+				}
+				
+				if(file_exists('uploads/photos/'.$project.'/'.$_FILES['file']['name'])){
+					unlink('uploads/photos/'.$project.'/'.$_FILES['file']['name']);
 				}
 
-				$uploadPath = 'uploads/photos/'.$this->input->post('project');
+				$uploadPath = 'uploads/photos/'.$project.'/';
 				$config['upload_path'] = $uploadPath;
-				$config['allowed_types'] = 'gif|jpg|png';
-				//$config['max_size']	= '100';
-				//$config['max_width'] = '1024';
-				//$config['max_height'] = '768';
+				$config['allowed_types'] = 'jpeg|jpg';
+				//$config['max_size']	= '1024';
+				//$config['max_width'] = '800';
+				//$config['max_height'] = '1200';
 				
 				$this->load->library('upload', $config);
 				$this->upload->initialize($config);
-				if($this->upload->do_upload('userFile')){
+				if($this->upload->do_upload('file')){
 					$fileData = $this->upload->data();
-					$uploadData[$i]['file_name'] = $fileData['file_name'];
-					$uploadData[$i]['created'] = date("Y-m-d H:i:s");
-					$uploadData[$i]['modified'] = date("Y-m-d H:i:s");
-					$uploadData[$i]['group'] = $this->input->post('project');
+					$uploadData['file_name'] = $fileData['file_name'];
+					$uploadData['created'] = date("Y-m-d H:i:s");
+					$uploadData['modified'] = date("Y-m-d H:i:s");
+					$uploadData['group'] = substr($fileData['file_name'], 0,6);
 				}
 							
 				
-			}
+		
 			if(!empty($uploadData)){
 				//Insert files data into the database
 				$insert = $this->file->insert($uploadData);
 				$statusMsg = $insert?'Files uploaded successfully.':'Some problem occurred, please try again.';
 				$this->session->set_flashdata('flash_message' , $statusMsg);
 			}
-		}
+		
 
-       redirect(base_url() . 'index.php?sdsa/gallery/', 'refresh');
+       //redirect(base_url() . 'index.php?sdsa/gallery/', 'refresh');
 	}
     
 	function accept_photo($param1=""){
@@ -224,6 +232,26 @@ class Sdsa extends CI_Controller
 		$this->session->set_flashdata('flash_message',get_phrase('reinstated_successful'));
 		redirect(base_url() . 'index.php?sdsa/search_photo/', 'refresh');
 		
+	}
+	
+	function download_all(){
+		
+		$param1="KE0200";
+		$param2="1";
+		
+		$files = $this->db->get_where('files',array('group'=>$param1,'status'=>$param2))->result_object();
+		
+		$archive_file_name = 'my_photo_achive_'.date("Y_m_d_H_i_s").'.zip';
+		
+		$file_path = 'uploads/';
+		
+		$file_names = array();
+		
+		foreach($files as $rows):
+			$file_names[] = 'uploads/photos/'.$param1.'/'.$rows->file_name;
+		endforeach;	
+		
+		zipArchive($file_names,$archive_file_name, $file_path);
 	}
 		
 }

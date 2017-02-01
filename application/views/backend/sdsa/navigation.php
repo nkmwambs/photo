@@ -38,12 +38,32 @@
             </a>
         </li>
 
-        <!-- DASHBOARD -->
-        <li class="<?php if ($page_name == 'gallery') echo 'active'; ?> ">
-            <a href="<?php echo base_url(); ?>index.php?sdsa/gallery">
+        <!-- Gallery -->       
+        
+        <li class="<?php
+        if ($page_name == 'upload' ||
+                    $page_name == 'gallery')
+                        echo 'opened active';
+        ?> ">
+            <a href="#">
                 <i class="fa fa-address-book"></i>
                 <span><?php echo get_phrase('gallery'); ?></span>
             </a>
+            <ul>
+                <li class="<?php if ($page_name == 'upload') echo 'active'; ?> ">
+                    <a href="<?php echo base_url("index.php?sdsa/upload_zone"); ?>">
+                        <span><i class="fa fa-bell-o"></i> <?php echo get_phrase('photo_upload'); ?></span>
+                    </a>
+                </li>
+
+                <li class="<?php if ($page_name == 'gallery') echo 'active'; ?> ">
+                    <a href="<?php echo base_url("index.php?sdsa/gallery"); ?>">
+                        <span><i class="entypo-briefcase"></i> <?php echo get_phrase('view_photo'); ?></span>
+                    </a>
+                </li> 
+                
+                              
+            </ul>
         </li>
 
         <!-- ACCOUNT -->
