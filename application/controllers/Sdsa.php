@@ -318,6 +318,24 @@ class Sdsa extends CI_Controller
 			redirect(base_url() . 'index.php?sdsa/manage_profile/', 'refresh');	
 		}
 		
+		if($param1==='update'){
+			
+			$this->db->where(array('users_id'=>$param2));
+			
+			$data['name'] = $this->input->post('fname');
+			$data['email'] = $this->input->post('email');
+			if($this->input->post('password')!==""){
+				$data['password'] = $this->input->post('password');
+			}
+			$data['level'] = $this->input->post('level');
+			
+			$this->db->update('users',$data);
+			
+			$this->session->set_flashdata('flash_message',get_phrase('profile_updated'));
+			
+			redirect(base_url() . 'index.php?sdsa/manage_profile/', 'refresh');
+		}
+		
 		if($param1==='delete'){
 				
 			
@@ -345,24 +363,87 @@ class Sdsa extends CI_Controller
         $this->load->view('backend/index', $page_data);
 	}
 	
-	function download_all(){
-		
-		$param1="KE0200";
-		$param2="1";
+	function download_accepted($param1="",$param2=""){		
 		
 		$files = $this->db->get_where('files',array('group'=>$param1,'status'=>$param2))->result_object();
 		
-		$archive_file_name = 'my_photo_achive_'.date("Y_m_d_H_i_s").'.zip';
-		
-		$file_path = 'uploads/';
-		
-		$file_names = array();
-		
 		foreach($files as $rows):
-			$file_names[] = 'uploads/photos/'.$param1.'/'.$rows->file_name;
-		endforeach;	
+			
+			$name = $rows->file_name;
+			
+			$path = 'uploads/photos/'.$param1.'/'.$rows->file_name;
+			
+			$data = file_get_contents($path);
 		
-		zipArchive($file_names,$archive_file_name, $file_path);
+			$this->zip->add_data($name, $data);
+			
+		endforeach;
+		
+		// Write the zip file to a folder on your server. Name it "my_backup.zip"
+		$this->zip->archive('downloads/my_backup.zip');
+		
+		// Download the file to your desktop. Name it "my_backup.zip"
+		
+		$backup_file = 'my_photo_archive_'.date("Y_m_d_H_i_s").'.zip'; 
+		
+		$this->zip->download($backup_file);
+		
+		unlink('downloads/'.$backup_file);
+		
+	}
+	
+	function image_action($param1="",$param2=""){
+			
+		$selected_images = $this->input->post('image');
+		
+		if($param2==="download_selected"){
+			
+			foreach($selected_images as $image):
+				
+				//$name = $rows->file_name;
+				
+				$path = 'uploads/photos/'.$param1.'/'.$image;
+				
+				$data = file_get_contents($path);
+			
+				$this->zip->add_data($image, $data);
+				
+			endforeach;
+			
+			// Write the zip file to a folder on your server. Name it "my_backup.zip"
+			$this->zip->archive('downloads/my_backup.zip');
+			
+			// Download the file to your desktop. Name it "my_backup.zip"
+			
+			$backup_file = 'my_photo_archive_'.date("Y_m_d_H_i_s").'.zip'; 
+			
+			$this->zip->download($backup_file);
+			
+			unlink('downloads/'.$backup_file);
+		}else{
+			
+			$status = '1';
+			
+			if($param2==="reject_selected") $status = '3';
+			if($param2==="reinstate_selected") $status = '4';
+			if($param2==="accept_selected") $status = '2';
+			
+			foreach($selected_images as $image):
+				
+				$this->db->where(array('file_name'=>$image));
+				
+				$data['status'] = $status;
+				
+				$this->db->update('files',$data);
+				
+			endforeach;
+			
+				$this->session->set_flashdata('flash_message',get_phrase('photo_status_changed'));
+
+				redirect(base_url() . 'index.php?sdsa/gallery/', 'refresh');			
+		}		
+		
+		
 	}
 		
 }

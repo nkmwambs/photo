@@ -53,7 +53,7 @@ $user = $this->db->get_where('users',array('users_id'=>$this->session->userdata(
 						<div class="form-group">
 							<label class="control-label col-sm-4"><?php echo get_phrase('email');?></label>
 							<div class="col-sm-8">
-								<input type="text" class="form-control" name="email" id="email" value="<?php echo $user->email;?>" />
+								<input type="text" class="form-control" readonly="readonly" name="email" id="email" value="<?php echo $user->email;?>" />
 							</div>
 						</div>
 						

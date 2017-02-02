@@ -137,7 +137,7 @@ ul.tsc_pagination li a.current
 	            			$projects = $this->db->get_where('projects',array('sdsa'=>$this->session->userdata('login_user_id')))->result_object();
 	            		?>
 	            	<div class="col-sm-12">
-	                    <select class="form-control" name="project"/>
+	                    <select class="form-control" name="project" id="project_number"/>
 	                    	<option><?php echo get_phrase('select');?></option>
 	                    <?php foreach($projects as $opts){?>
 	                    	<option value="<?php echo $opts->name;?>" <?php if($opts->name===$this->session->userdata('locate')) echo 'selected';?>><?php echo $opts->name;?></option>
@@ -194,35 +194,46 @@ ul.tsc_pagination li a.current
 			                    </button>
 			                    <ul class="dropdown-menu dropdown-default pull-right" role="menu">
 	
-			                        <!-- Add Sub Account -->
+			                        <!-- Accept Selected Images -->
 			                        <li>
-			                        	<a href="#" id="accept_all" class="mass_action">
+			                        	<a href="#" id="accept_selected" onclick='return image_action("accept_selected");' class="mass_action">
 			                            	<i class="fa fa-check"></i>
-												<?php echo get_phrase('accept_all');?>
+												<?php echo get_phrase('accept_selected');?>
 			                               	</a>
 			                        </li>
 			                        <li class="divider"></li>
 
 									
-			                        <!--Edit Category -->
+			                        <!--Reject selected Images -->
 			                        <li>
-			                        	<a href="#" id="reject_all"  class="mass_action">
+			                        	<a href="#" id="reject_selected" onclick='return image_action("reject_selected");'  class="mass_action">
 			                            	<i class="fa fa-close"></i>
-												<?php echo get_phrase('reject_all');?>
+												<?php echo get_phrase('reject_selected');?>
+			                               	</a>
+			                       	</li>
+			                       	
+			                       	<li class="divider"></li>
+			                       	
+			                       	<!-- Reinstate Selected Images -->
+			                       	
+			                       	  <li>
+			                        	<a href="#" id="reinstate_selected" onclick='return image_action("reinstate_selected");'  class="mass_action">
+			                            	<i class="fa fa-refresh"></i>
+												<?php echo get_phrase('reinstate_selected');?>
 			                               	</a>
 			                       	</li>
 			                       	
 									<li class="divider"></li>
 												                       	
-			                       	<!--Edit Category -->
+			                       	<!--Download Selected Images -->
 			                        <li>
-			                        	<a href="<?php echo base_url();?>index.php?sdsa/download_all/KE0200/1" id="download_all"  class="mass_action">
+			                        	<a href="#" onclick='return image_action("download_selected");' id="download_selected"  class="">
 			                            	<i class="fa fa-download"></i>
-												<?php echo get_phrase('download_all');?>
+												<?php echo get_phrase('download_selected');?>
 			                               	</a>
 			                       	</li>
 			                       	
-			                     	
+			                       
 			                     </ul>
 			                     </div>
         	  		
@@ -235,7 +246,12 @@ ul.tsc_pagination li a.current
         	  	<hr>
         	  	
 		        <div class="row">
-		        	<!--Empty Row-->
+		        		<div class="col-sm-12">
+				             <a class="btn btn-success btn-icon" href="<?php echo base_url();?>index.php?sdsa/download_accepted/<?php echo $project_num;?>/2"  id="download_accepted"  class="mass_action">
+				                <i class="fa fa-chevron-circle-down"></i>
+									<?php echo get_phrase('download_accepted');?>
+				             </a>
+			             </div> 
 		        </div>
         	  	
         	  	
@@ -259,6 +275,7 @@ ul.tsc_pagination li a.current
         		<div class="well well-sm"><?php echo $project_num.' : '.ucfirst($this->db->get_where('status',array('status_id'=>$this->session->userdata('status')))->row()->name).' '.get_phrase('photos');?></div>
         	</div>
             <div class="row">
+            	<form id="frm_image_action" action="" method="post">
                 <ul class="gallery">
                  	<?php 
                  		foreach($results as $file):
@@ -270,6 +287,8 @@ ul.tsc_pagination li a.current
 							$image = getimagesize($file_path);
 							$type = explode("/",$image['mime']);
 							$file_name = basename(base_url().'uploads/photos/'.$project_num.'/'.$file->file_name);
+							$file_arr = explode('.', $file_name);
+							$file_base = $file_arr['0'];
 						?>
                         <a href="#" onclick="showAjaxModal('<?php echo base_url();?>index.php?modal/popup/modal_full_photo/<?php echo $file->id;?>');"><img src="<?php echo base_url();?>uploads/photos/<?php echo $project_num;?>/<?php echo $file->file_name;?>" alt="" ></a>
                         	<div class="details">
@@ -278,13 +297,22 @@ ul.tsc_pagination li a.current
                         			<?php echo get_phrase('Width');?>:<?php echo $image['0'];?><br>
                         			<?php echo get_phrase('Height');?>:<?php echo $image['1'];?><br>
                         			<?php echo get_phrase('Type');?>:<?php echo $type['1'];?><br>
-                        			<?php echo get_phrase('File');?>:<?php $filename = explode('.', $file_name); echo $filename['0'];?>
+                        			<?php echo get_phrase('File');?>:<?php  echo $file_base;?>
                         		
                         	</div>
                         	<p>Uploaded On <?php echo date("j M Y",strtotime($file->created)); ?></p>                        
                         <div class="buttons">
-                        	<input style="width: 20px;" class="form-control pull-left get_img" type="checkbox"/> 
+                        	<input style="width: 20px;" name="image[]" class="form-control pull-left get_img" type="checkbox" value="<?php echo $file_name;?>"/> 
+                        	
+                        	<?php
+                        		if($this->session->userdata('status')!=='2'){
+                        	?>
                         	<div class="btn btn-success btn-icon"  onclick="return accept_photo('<?php echo $file->id;?>');"><i class="fa fa-thumbs-o-up"></i>Accept</div>
+                        	
+                        	<?php
+								}
+                        	?>
+                        	
                         	<?php
                         		if($this->session->userdata('status')==='3'){
                         	?>
@@ -323,6 +351,7 @@ ul.tsc_pagination li a.current
                     <div class="well well-sm">File(s) not found.....</div>
                     
                 </ul>
+                </form>
             </div>
             
 			<?php endif; ?>
@@ -359,17 +388,19 @@ ul.tsc_pagination li a.current
 	 	
 	 	var msg = "";
 	 	
-	 	if($('input.get_img:checked').length>0){
+	 	if($('input.get_img:checked').length>0 && ($(this).prop('id')!=="reject_all"||$(this).prop('id')!=="accept_all")){
 	 		msg = 'Are you sure you want to perform this action on the selected images?';
 	 	}else{
 	 		msg = 'Please select a photo first';
 	 	}
 	 	
+	 	if($(this).attr('id')!=="download_selected" || $(this).attr('id')!=="download_accepted"){
 	 		BootstrapDialog.show({
 		           title:'<?php echo get_phrase('confirm');?>',
 				   message: msg,
 				   draggable: true
 			});
+		}
 	 });
 	 
 	 function accept_photo(id){
@@ -402,6 +433,13 @@ ul.tsc_pagination li a.current
 	 	});
 	 }
 	 
+	function image_action(id){
 
+		$('#frm_image_action').attr('action','<?php echo base_url();?>index.php?sdsa/image_action/<?php echo $project_num;?>/'+id);
+		
+		$('#frm_image_action').submit();
+		
+	}
+	
 	 
 </script>

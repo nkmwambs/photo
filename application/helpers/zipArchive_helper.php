@@ -21,23 +21,26 @@ if ( ! function_exists('zipArchive'))
 		  $zip = new ZipArchive();
 		  //create the file and throw the error if unsuccessful
 		  if ($zip->open($archive_file_name, ZIPARCHIVE::CREATE )!==TRUE) {
-		    exit("cannot open $archive_file_name\n");
-		  }
+		    return false;
+		  }else{
 		
-		  //add each files of $file_name array to archive
-		  foreach($file_names as $files)
-		  {
-		    $zip->addFile($file_path.$files,$files);
+			  //add each files of $file_name array to archive
+			  foreach($file_names as $files)
+			  {
+			    $zip->addFile($file_path.$files,$files);
+			  }
+			  
+			  
+			  $zip->close();
+			
+			  //then send the headers to foce download the zip file
+			  header("Content-type: application/zip");
+			  header("Content-Disposition: attachment; filename=$archive_file_name");
+			  header("Pragma: no-cache");
+			  header("Expires: 0");
+			  readfile("$archive_file_name");
+		  
 		  }
-		  $zip->close();
-		
-		  //then send the headers to foce download the zip file
-		  header("Content-type: application/zip");
-		  header("Content-Disposition: attachment; filename=$archive_file_name");
-		  header("Pragma: no-cache");
-		  header("Expires: 0");
-		  readfile("$archive_file_name");
-		  exit;
 		
 	}
 }
