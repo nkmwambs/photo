@@ -1,50 +1,56 @@
+<?php
+//echo $this->uri->segments['4'];
+//echo $this->session->userdata('locate');
+//echo $this->session->userdata('status');
+//echo $this->session->userdata('per_page');
+?>
+
 <style>
 
 	ul.gallery {
     clear: both;
     float: left;
-    width: 100%;
-    margin-bottom: -10px;
+  	width: 100%;
+   /**margin-bottom: -10px;**/
     padding-left: 3px;
 }
 ul.gallery li.item {
     width: 30%;
-    height: 215px;
+    height: 160px;
     display: block;
     float: left;
     margin: 0px 15px 55px 0px;
     font-size: 12px;
     font-weight: normal;
     background-color: d3d3d3;
-    padding: 10px;
+   /**padding: 10px;**/
     box-shadow: 10px 10px 5px #888888;
 }
 
-.buttons{
-	margin-top: 10px;
+ul.gallery li.item img{
+	max-width:100%;
 }
 
-.item img,.details{width: 50%; height: 184px;}
-
-.item .details{padding-left:10px;}
-
-.item p {
-    color: #6c6c6c;
-    letter-spacing: 1px;
-    text-align: center;
-    position: relative;
-    margin: 5px 0px 0px 0px;
+ul.gallery li.item .buttons{
+	margin-top: 15px;
+	display: inline-block;
 }
-.details{
+
+
+.item .details{
+	width: 50%; 
+/**height: 184px;**/
 	position: relative;
 	float:right;
-}
+	padding-left:10px;
+	}
 
 
 
 #pagination{
 	position: relative;
 	padding-top: 40px;
+	display: inline-block;
 }
 
 ul.tsc_pagination li a
@@ -58,6 +64,7 @@ ul.tsc_pagination li a
 ul.tsc_pagination li
 {
 	padding-bottom:1px;
+	
 }
 ul.tsc_pagination li a:hover,
 ul.tsc_pagination li a.current
@@ -129,7 +136,7 @@ ul.tsc_pagination li a.current
 
         <div class="row">
         	  <div class="col-sm-6">
-        	  	<form action="<?php echo base_url();?>index.php?sdsa/search_photo" method="post">
+        	  	<form action="<?php echo base_url();?>index.php?sdsa/search_photo" method="post" id="frm_search">
 	        		<div class="form-group">
 	        		<label class="control-label col-sm-12">Search By ICP</label>
 	        		
@@ -275,7 +282,37 @@ ul.tsc_pagination li a.current
         		<div class="well well-sm"><?php echo $project_num.' : '.ucfirst($this->db->get_where('status',array('status_id'=>$this->session->userdata('status')))->row()->name).' '.get_phrase('photos');?></div>
         	</div>
             <div class="row">
-            	<form id="frm_image_action" action="" method="post">
+            
+            <!--<form id="frm_image_action" action="" method="post">-->
+            <?php echo form_open('' , array('id'=>'frm_image_action','class' => 'form-horizontal form-groups-bordered validate', 'enctype' => 'multipart/form-data'));?>	
+			
+
+            			<div class="form-group">
+            			<div class="col-sm-2">
+            				
+            			<?php
+            				//$per_page_selected = "selected";
+							
+							if(!isset($select_per_page)){
+								$select_per_page = $this->session->userdata('per_page');
+							}
+            			?>
+            			
+            			<select name="per_page" id="per_page" class="form-control" onchange="return change_page();">
+            				<option value="3"><?php echo get_phrase('select');?></option>
+            				<option value="6" <?php if($select_per_page==='6') echo 'selected';?>>6</option>
+            				<option value="12" <?php if($select_per_page==='12') echo 'selected';?>>12</option>
+            				<option value="24" <?php if($select_per_page==='24') echo 'selected';?>>24</option>
+            				<option value="48" <?php if($select_per_page==='48') echo 'selected';?>>48</option>
+            				<option value="96" <?php if($select_per_page==='96') echo 'selected';?>>96</option>
+            			</select>
+            			</div> 
+            			<label class="control-label col-sm-2">Photos Per Page</label>
+            			
+            		</div>
+            		
+            		
+            		
                 <ul class="gallery">
                  	<?php 
                  		foreach($results as $file):
@@ -290,24 +327,26 @@ ul.tsc_pagination li a.current
 							$file_arr = explode('.', $file_name);
 							$file_base = $file_arr['0'];
 						?>
-                        <a href="#" onclick="showAjaxModal('<?php echo base_url();?>index.php?modal/popup/modal_full_photo/<?php echo $file->id;?>');"><img src="<?php echo base_url();?>uploads/photos/<?php echo $project_num;?>/<?php echo $file->file_name;?>" alt="" ></a>
+                        <!--<a href="#" onclick="showAjaxModal('<?php echo base_url();?>index.php?modal/popup/modal_full_photo/<?php echo $file->id;?>');"><img src="<?php echo base_url();?>uploads/photos/<?php echo $project_num;?>/<?php echo $file->file_name;?>" alt="" ></a>-->
+                        <a href="#" onclick="showAjaxModal('<?php echo base_url();?>index.php?modal/popup/modal_full_photo/<?php echo $file->id;?>');"><?php echo thumbnail('uploads/photos/'.$project_num.'/'.$file->file_name, 100, 100 ); ?></a>
                         	<div class="details">
                         		<caption><u>Details</u></caption><br>
                         		
                         			<?php echo get_phrase('Width');?>:<?php echo $image['0'];?><br>
                         			<?php echo get_phrase('Height');?>:<?php echo $image['1'];?><br>
                         			<?php echo get_phrase('Type');?>:<?php echo $type['1'];?><br>
-                        			<?php echo get_phrase('File');?>:<?php  echo $file_base;?>
+                        			<?php echo get_phrase('File');?>:<?php  echo $file_base;?><br>
+                        			<?php echo get_phrase('date');?>:<?php echo date("j M Y",strtotime($file->created)); ?>
                         		
                         	</div>
-                        	<p>Uploaded On <?php echo date("j M Y",strtotime($file->created)); ?></p>                        
+                        	<!--<p>Uploaded On <?php echo date("j M Y",strtotime($file->created)); ?></p>-->                        
                         <div class="buttons">
-                        	<input style="width: 20px;" name="image[]" class="form-control pull-left get_img" type="checkbox" value="<?php echo $file_name;?>"/> 
+                        	<input style="width: 15px;" name="image[]" class="form-control pull-left get_img" type="checkbox" value="<?php echo $file_name;?>"/> 
                         	
                         	<?php
                         		if($this->session->userdata('status')!=='2'){
                         	?>
-                        	<div class="btn btn-success btn-icon"  onclick="return accept_photo('<?php echo $file->id;?>');"><i class="fa fa-thumbs-o-up"></i>Accept</div>
+                        	<div class="btn btn-success btn-icon btn-sm"  onclick="return accept_photo('<?php echo $file->id;?>');"><i class="fa fa-thumbs-o-up"></i>Accept</div>
                         	
                         	<?php
 								}
@@ -316,35 +355,22 @@ ul.tsc_pagination li a.current
                         	<?php
                         		if($this->session->userdata('status')==='3'){
                         	?>
-                        		<div class="btn btn-info btn-icon" onclick="return reinstate_photo('<?php echo $file->id;?>');"><i class="fa fa-refresh"></i><?php echo get_phrase('reinstate');?></div>
+                        		<div class="btn btn-info btn-icon btn-sm" onclick="return reinstate_photo('<?php echo $file->id;?>');"><i class="fa fa-refresh"></i><?php echo get_phrase('reinstate');?></div>
                         	<?php
                         		}else{
                         	?>
-                        		<div class="btn btn-danger btn-icon" onclick="showAjaxModal('<?php echo base_url();?>index.php?modal/popup/modal_reject_reason/<?php echo $file->id;?>')"><i class="fa fa-close"></i>Reject</div>
+                        		<div class="btn btn-danger btn-icon btn-sm" onclick="showAjaxModal('<?php echo base_url();?>index.php?modal/popup/modal_reject_reason/<?php echo $file->id;?>')"><i class="fa fa-close"></i>Reject</div>
                         	<?php		
                         		}
                         	?>
                         	
-                    		<a href="<?php echo base_url();?>index.php?sdsa/download/<?php echo $file->id;?>" class=" btn fa fa-download"></a>
+                    		<a href="<?php echo base_url();?>index.php?sdsa/download/<?php echo $file->id;?>" class=" btn btn-sm btn-info btn-icon"><i class="fa fa-download"></i>Download</a>
                     	</div>
                     </li>
                     
                     <?php endforeach;?>
 
-						<div class="row">
-				           <div  id="pagination">
-								<ul class="tsc_pagination">
-									
-								<?php //echo $link_raw;?>
-											
-								<!-- Show pagination links -->
-								<?php foreach ($links as $link) {
-								echo "<li>". $link."</li>";
-								} ?>
-								
-								</ul>
-							</div>
-			            </div>
+
 
 
                     <?php else: ?>
@@ -359,6 +385,11 @@ ul.tsc_pagination li a.current
         </div>
     </div>
 
+						<div class="row">
+				           <div class="col-md-12 text-center">
+					            <?php echo $pagination; ?>
+					        </div>
+			            </div>
 
 <script>
 	$(function() {
@@ -439,6 +470,15 @@ ul.tsc_pagination li a.current
 		
 		$('#frm_image_action').submit();
 		
+	}
+	
+	function change_page(){
+		
+		var per_page = $('#per_page').val();
+		
+		$('#frm_search').attr('action','<?php echo base_url();?>index.php?sdsa/set_num_pages/'+per_page);
+		
+		$('#frm_search').submit();
 	}
 	
 	 

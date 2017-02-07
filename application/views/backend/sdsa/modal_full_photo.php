@@ -2,7 +2,7 @@
 $photo = $this->file->getRows($param2);
 ?>
 <style>
-	img {
+	.panel-body img {
 
     width:100%;
     height:100%;
@@ -18,7 +18,7 @@ $photo = $this->file->getRows($param2);
 										
 				<div class="panel-body">
 				
-					<img src="<?php echo base_url();?>uploads/photos/<?php echo $photo['group'];?>/<?php echo $photo['file_name'];?>" alt="" >
+					<img src="<?php echo base_url();?>uploads/photos/<?php echo $photo['group'];?>/<?php echo $photo['file_name'];?>" alt="<?php echo $photo['file_name'];?> Photo" >
 					
 				</div>
 				

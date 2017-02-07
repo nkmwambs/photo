@@ -14,9 +14,9 @@
  */
 
 
-if ( ! function_exists('zipArchive'))
+if ( ! function_exists('ziparchive'))
 {
-	function zipArchive($file_names=array(),$archive_file_name,$file_path) {
+	function ziparchive($file_names=array(),$archive_file_name,$file_path) {
 		 //create the object
 		  $zip = new ZipArchive();
 		  //create the file and throw the error if unsuccessful

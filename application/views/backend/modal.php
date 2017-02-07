@@ -13,6 +13,7 @@
 			success: function(response)
 			{
 				jQuery('#modal_ajax .modal-body').html(response);
+				
 			}
 		});
 	}

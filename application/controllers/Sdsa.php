@@ -55,35 +55,81 @@ class Sdsa extends CI_Controller
 		$this->gallery();
 	}
 	
+	function set_num_pages($param1=""){
+		//per_page
+		if($param1==""){
+			$this->session->set_userdata('per_page',"6");
+		}else{
+			$this->session->set_userdata('per_page',$param1);
+		}
+		
+		if($this->uri->segments['4']){
+			$page = ($this->uri->segments['4']) ;
+		}
+		else{
+			$page = 1;
+		}
+		
+		$this->search_photo($this->session->userdata('locate'),$page);
+	}
+	
 	function search_photo($param1="",$param2=""){
         if ($this->session->userdata('sdsa_login') != 1)
             redirect(base_url(), 'refresh');
 		
 		$this->session->set_userdata('locate',$this->input->post('project'));
 		
-		$this->session->set_userdata('status',$this->input->post('status'));
-		
 		if($param1!==""){
 			$this->session->set_userdata('locate',$param1);
+		}
+		
+		if(!$this->input->post('status')){
+			$this->session->userdata('status');
+		}else{
+			$this->session->set_userdata('status',$this->input->post('status'));
 		}
 
 		$config = array();
 		$config["base_url"] = base_url() . "index.php?sdsa/search_photo/".$this->session->userdata('locate')."/";
 		
-		//if($param2!==""){
-			//$config["base_url"] = base_url() . "index.php?sdsa/search_photo/".$this->session->userdata('locate')."/".$param2;
-		//}
 		
 		$total_row = $this->pagination_model->record_count();
 		$config["total_rows"] = $total_row;
-		$config["per_page"] = 9;
+		
+		if(!$this->session->userdata('per_page')){
+			$config["per_page"] = 6;
+		}else{
+			$config["per_page"] = $this->session->userdata('per_page');
+		}
+		
+		
 		$config["num_links"] = 5;
 		$config['use_page_numbers'] = TRUE;
 		$config['num_links'] = $total_row;
-		$config['cur_tag_open'] = '&nbsp;<a class="current">';
-		$config['cur_tag_close'] = '</a>';
-		$config['next_link'] = 'Next';
-		$config['prev_link'] = 'Previous';
+		//$config['cur_tag_open'] = '&nbsp;<a class="current">';
+		//$config['cur_tag_close'] = '</a>';
+		//$config['next_link'] = 'Next';
+		//$config['prev_link'] = 'Previous';
+		
+		
+		$config['full_tag_open'] = '<ul class="pagination">';
+        $config['full_tag_close'] = '</ul>';
+        $config['first_link'] = false;
+        $config['last_link'] = false;
+        $config['first_tag_open'] = '<li>';
+        $config['first_tag_close'] = '</li>';
+        $config['prev_link'] = '&laquo';
+        $config['prev_tag_open'] = '<li class="prev">';
+        $config['prev_tag_close'] = '</li>';
+        $config['next_link'] = '&raquo';
+        $config['next_tag_open'] = '<li>';
+        $config['next_tag_close'] = '</li>';
+        $config['last_tag_open'] = '<li>';
+        $config['last_tag_close'] = '</li>';
+        $config['cur_tag_open'] = '<li class="active"><a href="#">';
+        $config['cur_tag_close'] = '</a></li>';
+        $config['num_tag_open'] = '<li>';
+        $config['num_tag_close'] = '</li>';
 		
 		$this->pagination->initialize($config);
 		if($this->uri->segments['4']){
@@ -108,8 +154,8 @@ class Sdsa extends CI_Controller
 		
 		$str_links = $this->pagination->create_links();
 		$page_data['project_num'] = $this->session->userdata('locate');
-		$page_data["links"] = explode('&nbsp;',$str_links );
-		$page_data['page'] = $this->uri->segments['4'];
+		$page_data["pagination"] = $str_links;//explode('&nbsp;',$str_links );
+		//$page_data['page'] = $this->uri->segments['4'];
 		
         $page_data['page_name']  = 'gallery';
         $page_data['page_title'] = get_phrase('gallery');
@@ -175,6 +221,7 @@ class Sdsa extends CI_Controller
 				$this->session->set_flashdata('flash_message' , $statusMsg);
 			}
 		
+		thumbnail('uploads/photos/'.$project.'/'.$_FILES['file']['name'], 100, 100);
 
        //redirect(base_url() . 'index.php?sdsa/gallery/', 'refresh');
 	}

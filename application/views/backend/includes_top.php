@@ -6,6 +6,10 @@
 <link rel="stylesheet" href="assets/css/neon-theme.css">
 <link rel="stylesheet" href="assets/css/neon-forms.css">
 
+
+<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/4.2.0/min/dropzone.min.js"></script>
+
 <link rel="stylesheet" href="assets/css/custom.css">
 
 <?php
