@@ -42,7 +42,8 @@
         
         <li class="<?php
         if ($page_name == 'upload' ||
-                    $page_name == 'gallery')
+                    $page_name == 'gallery'||
+					$page_name == 'trash')
                         echo 'opened active';
         ?> ">
             <a href="#">
@@ -57,10 +58,28 @@
                 </li>
 
                 <li class="<?php if ($page_name == 'gallery') echo 'active'; ?> ">
-                    <a href="<?php echo base_url("index.php?sdsa/gallery"); ?>">
+                	<?php 
+                	if($this->session->userdata('locate')){
+                	?>
+                    	<a href="<?php echo base_url("index.php?sdsa/search_photo/".$this->session->userdata('locate').'/'.$this->session->userdata('page_num')); ?>">
+                    <?php 
+					}else{
+                	?>
+                	
+                		<a href="<?php echo base_url("index.php?sdsa/gallery"); ?>">
+                	
+                	<?php 
+                	}
+                	?>
                         <span><i class="entypo-briefcase"></i> <?php echo get_phrase('view_photo'); ?></span>
                     </a>
                 </li> 
+                
+                <li class="<?php if ($page_name == 'trash') echo 'active'; ?> ">
+                    <a href="<?php echo base_url("index.php?sdsa/trash"); ?>">
+                        <span><i class="fa fa-trash-o"></i> <?php echo get_phrase('trash'); ?></span>
+                    </a>
+                </li>
                 
                               
             </ul>

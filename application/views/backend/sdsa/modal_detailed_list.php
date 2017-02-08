@@ -1,3 +1,9 @@
+<style>
+	img{
+		width: 44px;
+	}
+</style>
+
 <div class="row">
 	<div class="col-sm-12">
 	 <div class="panel panel-info " data-collapsed="0">
@@ -27,8 +33,9 @@
 						foreach($photos as $rows):
 					?>
 						<tr>
-							<th><img src="<?php echo base_url();?>uploads/photos/<?php echo $param3;?>/<?php echo $rows->file_name;?>" class="img-circle" width="44"></th>
-							<td><?php echo $rows->file_name;?></td>
+							<!--<td><img src="<?php echo base_url();?>uploads/photos/thumbnails/<?php echo $rows->file_name;?>" class="img-circle" width="44"></td>-->
+							<td><?php echo thumbnail('uploads/photos/'.$param3.'/'.$rows->file_name, 100, 100 );?></td>
+							<td><?php echo $rows->file_name;?></td><!--<?php echo thumbnail('uploads/photos/'.$project_num.'/'.$file->file_name, 100, 100 ); ?>-->
 							<td><?php echo $rows->created;?></td>
 							<td><?php echo $rows->modified;?></td>
 							<td><?php echo ucfirst($param2);?></td>
@@ -41,4 +48,5 @@
 			</div>
 	</div>	
 	</div>
+	
 </div>

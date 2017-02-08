@@ -16,7 +16,7 @@
 }
 ul.gallery li.item {
     width: 30%;
-    height: 160px;
+    height: 200px;
     display: block;
     float: left;
     margin: 0px 15px 55px 0px;
@@ -28,7 +28,8 @@ ul.gallery li.item {
 }
 
 ul.gallery li.item img{
-	max-width:100%;
+/**max-width:100%;**/
+	margin: 15px 5px 5px 20px;
 }
 
 ul.gallery li.item .buttons{
@@ -37,12 +38,15 @@ ul.gallery li.item .buttons{
 }
 
 
-.item .details{
+ul.gallery li.item .details{
 	width: 50%; 
 /**height: 184px;**/
 	position: relative;
 	float:right;
-	padding-left:10px;
+	padding:10px;
+	box-shadow: 10px 10px 5px #888888;
+	margin:10px 10px 5px;
+	border:1px outset ;
 	}
 
 
@@ -171,6 +175,7 @@ ul.tsc_pagination li a.current
 				        	  	<option value="2" <?php if($select_status==='2') echo $selected;?>><?php echo get_phrase('accepted');?></option>
 				        	  	<option value="3" <?php if($select_status==='3') echo $selected;?>><?php echo get_phrase('rejected');?></option>
 				        	  	<option value="4" <?php if($select_status==='4') echo $selected;?>><?php echo get_phrase('reinstated');?></option>
+				        	  	<!--<option value="5" <?php if($select_status==='5') echo $selected;?>><?php echo get_phrase('deleted');?></option>-->
 				      		</select>
 				      </div>
 	        		
@@ -230,6 +235,17 @@ ul.tsc_pagination li a.current
 			                               	</a>
 			                       	</li>
 			                       	
+			                       	<li class="divider"></li>
+			                       	
+			                       	<!-- Delete Selected Images -->
+			                       	
+			                       	  <li>
+			                        	<a href="#" id="del_selected" onclick='return image_action("del_selected");'  class="mass_action">
+			                            	<i class="fa fa-trash-o"></i>
+												<?php echo get_phrase('delete_selected');?>
+			                               	</a>
+			                       	</li>
+			                       	
 									<li class="divider"></li>
 												                       	
 			                       	<!--Download Selected Images -->
@@ -279,7 +295,9 @@ ul.tsc_pagination li a.current
         		if(!empty($results)): 
 			?>
         	<div class="row" style="font-weight: bolder;">
-        		<div class="well well-sm"><?php echo $project_num.' : '.ucfirst($this->db->get_where('status',array('status_id'=>$this->session->userdata('status')))->row()->name).' '.get_phrase('photos');?></div>
+        		<div class="well well-sm"><?php echo $project_num.' : '.ucfirst($this->db->get_where('status',array('status_id'=>$this->session->userdata('status')))->row()->name).' '.get_phrase('photos');?>
+        			 (Showing <?= count($results);?> Out of <?php echo $this->db->get_where('files',array('group'=>$project_num,'status'=>$this->session->userdata('status')))->num_rows();?>)
+        		</div>
         	</div>
             <div class="row">
             
@@ -330,18 +348,19 @@ ul.tsc_pagination li a.current
                         <!--<a href="#" onclick="showAjaxModal('<?php echo base_url();?>index.php?modal/popup/modal_full_photo/<?php echo $file->id;?>');"><img src="<?php echo base_url();?>uploads/photos/<?php echo $project_num;?>/<?php echo $file->file_name;?>" alt="" ></a>-->
                         <a href="#" onclick="showAjaxModal('<?php echo base_url();?>index.php?modal/popup/modal_full_photo/<?php echo $file->id;?>');"><?php echo thumbnail('uploads/photos/'.$project_num.'/'.$file->file_name, 100, 100 ); ?></a>
                         	<div class="details">
-                        		<caption><u>Details</u></caption><br>
+                        		<caption style="font-weight: bold;"><u><?php echo get_phrase('properties');?></u></caption><br>
                         		
-                        			<?php echo get_phrase('Width');?>:<?php echo $image['0'];?><br>
-                        			<?php echo get_phrase('Height');?>:<?php echo $image['1'];?><br>
-                        			<?php echo get_phrase('Type');?>:<?php echo $type['1'];?><br>
-                        			<?php echo get_phrase('File');?>:<?php  echo $file_base;?><br>
-                        			<?php echo get_phrase('date');?>:<?php echo date("j M Y",strtotime($file->created)); ?>
+                        			<span style="font-weight: bold;"><?php echo get_phrase('Width');?>:</span><?php echo $image['0'];?><br>
+                        			<span style="font-weight: bold;"><?php echo get_phrase('Height');?>:</span><?php echo $image['1'];?><br>
+                        			<span style="font-weight: bold;"><?php echo get_phrase('Size');?>:</span><?php echo human_filesize(filesize('uploads/photos/'.$project_num.'/'.$file->file_name));?><br>
+                        			<span style="font-weight: bold;"><?php echo get_phrase('Type');?>:</span><?php echo $type['1'];?><br>
+                        			<span style="font-weight: bold;"><?php echo get_phrase('File');?>:</span><?php  echo $file_base;?><br>
+                        			<span style="font-weight: bold;"><?php echo get_phrase('date');?>:</span><?php echo date("j M Y",strtotime($file->created)); ?>
                         		
                         	</div>
                         	<!--<p>Uploaded On <?php echo date("j M Y",strtotime($file->created)); ?></p>-->                        
                         <div class="buttons">
-                        	<input style="width: 15px;" name="image[]" class="form-control pull-left get_img" type="checkbox" value="<?php echo $file_name;?>"/> 
+                        	<input style="width: 15px;" name="image[<?php echo $file->id;?>]" class="form-control pull-left get_img" type="checkbox" value="<?php echo $file_name;?>"/> 
                         	
                         	<?php
                         		if($this->session->userdata('status')!=='2'){

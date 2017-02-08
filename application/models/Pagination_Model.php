@@ -13,7 +13,7 @@ return $this->db->count_all("files");
 // Fetch data according to per_page limit.
 public function fetch_data($limit, $page,$group,$status="") {
 	//$offset = ($limit*$page)-$limit;
-	$this->db->limit($limit,$page);
+	$this->db->limit($limit,$page-1);
 	
 	//if($status!==""){
 		$this->db->where(array('group'=>$group,'status'=>$status));

@@ -131,6 +131,8 @@
         var previewTemplate = previewNode.parentNode.innerHTML;
         previewNode.parentNode.removeChild(previewNode);
         
+        
+        
         var myDropzone = new Dropzone(document.body, { // Make the whole body a dropzone
           url: "<?php echo base_url();?>index.php?sdsa/upload_photo", // Set the url
           thumbnailWidth: 80,
@@ -140,12 +142,27 @@
           previewTemplate: previewTemplate,
           autoQueue: false, // Make sure the files aren't queued until manually added
           previewsContainer: "#previews", // Define the container to display the previews
-          clickable: ".fileinput-button" // Define the element that should be used as click trigger to select files.
+          clickable: ".fileinput-button" // Define the element that should be used as click trigger to select files.	  
         });
+        
         
         myDropzone.on("addedfile", function(file) {
           // Hookup the start button
           file.previewElement.querySelector(".start").onclick = function() { myDropzone.enqueueFile(file); };
+          
+          //check if file names are same
+          
+          if (this.files.length) {
+			    var _i, _len;
+			    for (_i = 0, _len = this.files.length; _i < _len - 1; _i++) {
+			        if( this.files[_i].name === file.name ) {
+			            this.removeFile(file);
+			        }
+			    }
+			}
+			
+			
+          
         });
         
         // Update the total progress bar

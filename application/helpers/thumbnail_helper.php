@@ -13,7 +13,8 @@ if ( ! function_exists('thumbnail'))
 		    if(!file_exists('uploads/thumbnails/')){
 		    	mkdir('uploads/thumbnails/');
 		    }
-		    
+			
+			
 		    $image_thumb = 'uploads/thumbnails/'.pathinfo($image_path, PATHINFO_BASENAME);
 		
 		    if ( !file_exists( $image_thumb ) ) {

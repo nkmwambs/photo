@@ -63,12 +63,14 @@ class Sdsa extends CI_Controller
 			$this->session->set_userdata('per_page',$param1);
 		}
 		
+		$page = 1;
+		
 		if($this->uri->segments['4']){
 			$page = ($this->uri->segments['4']) ;
 		}
-		else{
-			$page = 1;
-		}
+		
+		
+		$this->session->set_userdata('page_num',$page);
 		
 		$this->search_photo($this->session->userdata('locate'),$page);
 	}
@@ -132,12 +134,15 @@ class Sdsa extends CI_Controller
         $config['num_tag_close'] = '</li>';
 		
 		$this->pagination->initialize($config);
+		
+		$page = 1;
+		
 		if($this->uri->segments['4']){
 			$page = ($this->uri->segments['4']) ;
 		}
-		else{
-			$page = 1;
-		}
+		
+		
+		$this->session->set_userdata('page_num',$page);
 		
 		//if($this->uri->segments['5']){
 			//$status = ($this->uri->segments['5']) ;
@@ -195,6 +200,12 @@ class Sdsa extends CI_Controller
 					unlink('uploads/photos/'.$project.'/'.$_FILES['file']['name']);
 				}
 
+				//Check if thumbnail exists
+						
+				if(file_exists('uploads/thumbnails/'.$_FILES['file']['name'])){
+					unlink('uploads/thumbnails/'.$_FILES['file']['name']);
+				}
+
 				$uploadPath = 'uploads/photos/'.$project.'/';
 				$config['upload_path'] = $uploadPath;
 				$config['allowed_types'] = 'jpeg|jpg';
@@ -217,13 +228,15 @@ class Sdsa extends CI_Controller
 			if(!empty($uploadData)){
 				//Insert files data into the database
 				$insert = $this->file->insert($uploadData);
-				$statusMsg = $insert?'Files uploaded successfully.':'Some problem occurred, please try again.';
-				$this->session->set_flashdata('flash_message' , $statusMsg);
+				//$statusMsg = $insert?'Files uploaded successfully.':'Some problem occurred, please try again.';
+				//$this->session->set_flashdata('flash_message' , $statusMsg);
 			}
+		
+		
 		
 		thumbnail('uploads/photos/'.$project.'/'.$_FILES['file']['name'], 100, 100);
 
-       //redirect(base_url() . 'index.php?sdsa/gallery/', 'refresh');
+       
 	}
     
 	function accept_photo($param1=""){
@@ -236,7 +249,7 @@ class Sdsa extends CI_Controller
 		$this->db->update('files',$data);
 		
 		$this->session->set_flashdata('flash_message',get_phrase('accepted_successful'));
-		redirect(base_url() . 'index.php?sdsa/gallery/', 'refresh');
+		redirect(base_url() . 'index.php?sdsa/search_photo/'.$this->session->userdata('locate').'/'.$this->session->userdata('page_num'), 'refresh');
 	}
 	
 	function reject_photo($param1=""){//reinstate_photo
@@ -256,7 +269,7 @@ class Sdsa extends CI_Controller
 		$this->db->insert('reasons',$data2);
 		
 		$this->session->set_flashdata('flash_message',get_phrase('rejected_successful'));
-		redirect(base_url() . 'index.php?sdsa/search_photo/', 'refresh');
+		redirect(base_url() . 'index.php?sdsa/search_photo/'.$this->session->userdata('locate').'/'.$this->session->userdata('page_num'), 'refresh');
 		
 	}
 
@@ -445,7 +458,7 @@ class Sdsa extends CI_Controller
 		
 		if($param2==="download_selected"){
 			
-			foreach($selected_images as $image):
+			foreach($selected_images as $key=>$image):
 				
 				//$name = $rows->file_name;
 				
@@ -467,6 +480,44 @@ class Sdsa extends CI_Controller
 			$this->zip->download($backup_file);
 			
 			unlink('downloads/'.$backup_file);
+		}elseif($param2==="del_selected") {
+				
+			$cnt_deleted = 0;	
+				
+			foreach($selected_images as $key=>$image):
+				if($this->db->get_where('files',array('id'=>$key))->row()->status==='1' || $this->db->get_where('files',array('id'=>$key))->row()->status==='3'){
+						
+					$this->db->where(array('id'=>$key));
+				
+					$data['status'] = 5;
+				
+					$this->db->update('files',$data);
+					
+					//Move to trash
+					
+					copy('uploads/photos/'.$this->session->userdata('locate').'/'.$image, 'uploads/trash/'.$image);
+					
+					
+					//Delete the Image
+					
+					unlink('uploads/photos/'.$this->session->userdata('locate').'/'.$image);
+					
+					++$cnt_deleted;
+				}
+				
+				
+				
+			endforeach;
+			
+			if($cnt_deleted>0){
+				$this->session->set_flashdata('flash_message',get_phrase('photo_deleted').'('.$cnt_deleted.')');
+			}else{
+				$this->session->set_flashdata('flash_message',get_phrase('no_photo_deleted'));
+			}
+				
+
+				redirect(base_url() . 'index.php?sdsa/search_photo/'.$this->session->userdata('locate').'/'.$this->session->userdata('page_num'), 'refresh');	
+		
 		}else{
 			
 			$status = '1';
@@ -474,10 +525,12 @@ class Sdsa extends CI_Controller
 			if($param2==="reject_selected") $status = '3';
 			if($param2==="reinstate_selected") $status = '4';
 			if($param2==="accept_selected") $status = '2';
+
 			
-			foreach($selected_images as $image):
+			
+			foreach($selected_images as $key=>$image):
 				
-				$this->db->where(array('file_name'=>$image));
+				$this->db->where(array('id'=>$key));
 				
 				$data['status'] = $status;
 				
@@ -487,7 +540,7 @@ class Sdsa extends CI_Controller
 			
 				$this->session->set_flashdata('flash_message',get_phrase('photo_status_changed'));
 
-				redirect(base_url() . 'index.php?sdsa/gallery/', 'refresh');			
+				redirect(base_url() . 'index.php?sdsa/search_photo/'.$this->session->userdata('locate').'/'.$this->session->userdata('page_num'), 'refresh');			
 		}		
 		
 		

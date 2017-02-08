@@ -17,9 +17,16 @@ $photo = $this->file->getRows($param2);
 				</div>
 										
 				<div class="panel-body">
-				
+				<?php
+				if(file_exists('uploads/photos/'.$photo['group'].'/'.$photo['file_name'])){
+				?>
 					<img src="<?php echo base_url();?>uploads/photos/<?php echo $photo['group'];?>/<?php echo $photo['file_name'];?>" alt="<?php echo $photo['file_name'];?> Photo" >
 					
+				<?php
+				}else{
+					echo thumbnail('uploads/photos/'.$photo['file_name'].'/'.$rows->file_name, 100, 100 );
+				}
+				?>	
 				</div>
 				
 				<div class="panel-footer">
