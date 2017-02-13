@@ -7,4 +7,33 @@ if ( ! function_exists('human_filesize'))
 	    return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) .' '. @$size[$factor];
 	}
 }
+
+
+if ( ! function_exists('file_list'))
+{
+	function file_list($path){
+			
+		$f_array = array();
+		
+		$dir = FCPATH.$path;
+	
+		// Open a directory, and read its contents
+		if (is_dir($dir)){
+		  if ($dh = opendir($dir)){
+		    while (($file = readdir($dh)) !== false){
+		    
+			if($file!=="."&&$file!==".."){
+				 //echo "filename:" . $file . "<br>";
+				 $f_array[] = $file;
+			} 
+			 
+			}
+		    closedir($dh);
+		  }
+		}
+		
+		return $f_array;
+	
+	}
+}	
 ?>

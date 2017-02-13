@@ -135,6 +135,7 @@
         
         var myDropzone = new Dropzone(document.body, { // Make the whole body a dropzone
           url: "<?php echo base_url();?>index.php?sdsa/upload_photo", // Set the url
+          paramName: "file",
           thumbnailWidth: 80,
           thumbnailHeight: 80,
           parallelUploads: 20,

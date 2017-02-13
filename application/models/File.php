@@ -18,37 +18,50 @@ class File extends CI_Model{
 	
 	public function insert($data = array()){
 		//$insert = $this->db->insert_batch('files',$data);
-		$chk = $this->db->get_where('files',array('file_name'=>$data['file_name'],'status<>'=>5));
+		$chk = $this->db->get_where('files',array('file_name'=>$data['file_name'],'status<'=>5));
 		
-		if($chk->num_rows()>0):
+		if($chk->num_rows()>0){
 			
-			$this->db->where(array('file_name'=>$data['file_name'],'status<>'=>5));
+			
 			
 			if($chk->row()->status==='3' || $chk->row()->status==='4'){
-				
-				$data2['modified'] = date("Y-m-d H:i:s");
+				$this->db->where(array('file_name'=>$data['file_name'],'status<'=>5));	
+				$data2['file_name'] = $data['file_name'];
+				$data2['created'] = $data['created'];
+				$data2['modified'] = $data['modified'];
+				$data2['group'] = $data['group'];
 				$data2['status'] = '4';
+				
 				$action = $this->db->update('files',$data2);
 			
 			}elseif($chk->row()->status==='1'){
-			
-				$data2['modified'] = date("Y-m-d H:i:s");
-				$action = $this->db->update('files',$data2);	
+  				$this->db->where(array('file_name'=>$data['file_name'],'status'=>1));			
+				$action = $this->db->update('files',$data);	
 			
 			}elseif($chk->row()->status==='2'){
-			
-				$data2['modified'] = date("Y-m-d H:i:s");
+				$this->db->where(array('file_name'=>$data['file_name'],'status'=>2));
+				$data2['file_name'] = $data['file_name'];
+				$data2['created'] = $data['created'];
+				$data2['modified'] = $data['modified'];
+				$data2['group'] = $data['group'];
 				$data2['status'] = '5';
 				
 				$this->db->update('files',$data2);	
 				
-				$action = $this->db->insert('files',$data);						
-			}else{
-				$action = $this->db->insert('files',$data);
+				$data3['file_name'] = $data['file_name'];
+				$data3['created'] = $data['created'];
+				$data3['modified'] = $data['modified'];
+				$data3['group'] = $data['group'];
+				$data3['status'] = '1';				
+				$action = $this->db->insert('files',$data3);	
+									
 			}
 			
 
-		endif;
+		}else{
+			
+			$action = $this->db->insert('files',$data);
+		}
 		
 		
 		return $action?true:false;

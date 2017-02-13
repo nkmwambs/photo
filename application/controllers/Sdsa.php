@@ -486,6 +486,10 @@ class Sdsa extends CI_Controller
 				
 			foreach($selected_images as $key=>$image):
 				if($this->db->get_where('files',array('id'=>$key))->row()->status==='1' || $this->db->get_where('files',array('id'=>$key))->row()->status==='3'){
+					
+					if(!file_exists('uploads/trash/')){
+						mkdir('uploads/trash/');
+					}	
 						
 					$this->db->where(array('id'=>$key));
 				
@@ -545,5 +549,61 @@ class Sdsa extends CI_Controller
 		
 		
 	}
+
+	public function trash($param1=""){
+        if ($this->session->userdata('sdsa_login') != 1)
+            redirect(base_url(), 'refresh');
+			
+        $page_data['page_name']  = 'trash';
+        $page_data['page_title'] = get_phrase('trash');
+        $this->load->view('backend/index', $page_data);		
+	}
+	
+	public function restore_image($param1=""){
+		$source = 'uploads/trash/'.$param1;
+		$locate = substr($param1, 0,6);
+		$dest = "uploads/photos/".$locate.'/'.$param1;
 		
+		if(file_exists($dest)){
+			$this->session->set_flashdata('flash_message',get_phrase('file_already_exists'));
+		}else{
+			copy($source, $dest);
+			
+			$data['file_name'] = $param1;
+			$data['group'] = $locate;
+			$data['created'] = date("Y-m-d H:i:s");
+			$data['modified'] = date("Y-m-d H:i:s");
+			$data['status'] = '1';
+			
+			$this->db->insert('files',$data);
+			
+			unlink($source);
+			
+			$this->session->set_flashdata('flash_message',get_phrase('file_restored'));
+		}
+		
+		redirect(base_url() . 'index.php?sdsa/trash/', 'refresh');	
+		
+		
+	}
+		
+	public function clear_image($param1=""){
+		$source = 'uploads/trash/'.$param1;
+		unlink($source);
+		
+		$this->session->set_flashdata('flash_message',get_phrase('file_cleared'));
+		
+		redirect(base_url() . 'index.php?sdsa/trash/', 'refresh');	
+	}	
+	
+	function empty_trash(){
+		$files = glob('uploads/trash/*'); // get all file names
+			foreach($files as $file){ // iterate files
+			  if(is_file($file))
+			    unlink($file); // delete file
+			}	
+		$this->session->set_flashdata('flash_message',get_phrase('files_cleared'));
+		
+		redirect(base_url() . 'index.php?sdsa/trash/', 'refresh');		
+	}
 }

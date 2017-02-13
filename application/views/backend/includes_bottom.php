@@ -61,6 +61,11 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/dropzone.js"></script>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/dropzone.css">
 	
+	<script src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
+	<script src="https://cdn.datatables.net/1.10.13/js/dataTables.bootstrap.min.js"></script>
+	
+
+	
 
 <!-- SHOW TOASTR NOTIFIVATION -->
 <?php if ($this->session->flashdata('flash_message') != ""):?>
