@@ -49,6 +49,10 @@ $photo = $this->file->getRows($param2);
 						<?php		
 							}
 						?>
+						
+						<div class="btn btn-info btn-icon"><i class="fa fa-rotate-left"></i><?=get_phrase('left_rotate');?></div>
+						
+						<div class="btn btn-info btn-icon"><i class="fa fa-rotate-right"></i><?=get_phrase('right_rotate');?></div>
 				</div>
 			
 		</div>
