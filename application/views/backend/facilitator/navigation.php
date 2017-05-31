@@ -37,6 +37,42 @@
                 <span><?php echo get_phrase('dashboard'); ?></span>
             </a>
         </li>
+        
+        
+        <!-- Gallery -->       
+        
+        <li class="<?php
+        if ($page_name == 'upload' ||
+                    $page_name == 'gallery'||
+					$page_name == 'trash')
+                        echo 'opened active';
+        ?> ">
+            <a href="#">
+                <i class="fa fa-address-book"></i>
+                <span><?php echo get_phrase('gallery'); ?></span>
+            </a>
+            <ul>
+                <li class="<?php if ($page_name == 'upload') echo 'active'; ?> ">
+                    <a href="<?php echo base_url("index.php?facilitator/upload_zone"); ?>">
+                        <span><i class="fa fa-bell-o"></i> <?php echo get_phrase('photo_upload'); ?></span>
+                    </a>
+                </li>
+
+                <li class="<?php if ($page_name == 'gallery') echo 'active'; ?> ">
+					<a href="<?php echo base_url("index.php?facilitator/gallery"); ?>">
+                        <span><i class="entypo-briefcase"></i> <?php echo get_phrase('view_photo'); ?></span>
+                    </a>
+                </li> 
+                
+                <!--<li class="<?php if ($page_name == 'trash') echo 'active'; ?> ">
+                    <a href="<?php echo base_url("index.php?project/trash"); ?>">
+                        <span><i class="fa fa-trash-o"></i> <?php echo get_phrase('trash'); ?></span>
+                    </a>
+                </li>-->
+                
+                              
+            </ul>
+        </li>
 
 
         <!-- ACCOUNT -->

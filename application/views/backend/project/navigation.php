@@ -1,84 +1,88 @@
-<div class="row">
-	<div class="col-md-8">
-    	<div class="row">
-            <!-- CALENDAR-->
-            <div class="col-md-12 col-xs-12">    
-                <div class="panel panel-primary " data-collapsed="0">
-                    <div class="panel-heading">
-                        <div class="panel-title">
-                            <i class="fa fa-calendar"></i>
-                            <?php echo get_phrase('event_schedule');?>
-                        </div>
-                    </div>
-                    <div class="panel-body" style="padding:0px;">
-                        <div class="calendar-env">
-                            <div class="calendar-body">
-                                <div id="notice_calendar"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<div class="sidebar-menu">
+    <header class="logo-env" >
+
+        <!-- logo -->
+        <div class="logo" style="">
+            <a href="<?php echo base_url(); ?>">
+                <img src="uploads/logo.png"  style="max-height:60px;"/>
+            </a>
         </div>
-    </div>
-    
-	<div class="col-md-4">
-		<div class="row">
-            <div class="col-md-12">
-            
-                <div class="tile-stats tile-red">
-                    <div class="icon"><i class="fa fa-group"></i></div>
-                    <div class="num" data-start="0" data-end="<?php echo $this->db->count_all('users');?>" 
-                    		data-postfix="" data-duration="1500" data-delay="0">0</div>
-                    
-                    <h3><?php echo get_phrase('users');?></h3>
-                   <p>Total Users</p>
-                </div>
+
+        <!-- logo collapse icon -->
+        <div class="sidebar-collapse" style="">
+            <a href="#" class="sidebar-collapse-icon with-animation">
+
+                <i class="entypo-menu"></i>
+            </a>
+        </div>
+
+        <!-- open/close menu icon (do not remove if you want to enable menu on mobile devices) -->
+        <div class="sidebar-mobile-menu visible-xs">
+            <a href="#" class="with-animation">
+                <i class="entypo-menu"></i>
+            </a>
+        </div>
+    </header>
+
+    <div style=""></div>	
+    <ul id="main-menu" class="">
+        <!-- add class "multiple-expanded" to allow multiple submenus to open -->
+        <!-- class "auto-inherit-active-class" will automatically add "active" class for parent elements who are marked already with class "active" -->
+
+
+        <!-- DASHBOARD -->
+        <li class="<?php if ($page_name == 'dashboard') echo 'active'; ?> ">
+            <a href="<?php echo base_url(); ?>index.php?project/dashboard">
+                <i class="entypo-gauge"></i>
+                <span><?php echo get_phrase('dashboard'); ?></span>
+            </a>
+        </li>
+        
+        
+        <!-- Gallery -->       
+        
+        <li class="<?php
+        if ($page_name == 'upload' ||
+                    $page_name == 'gallery'||
+					$page_name == 'trash')
+                        echo 'opened active';
+        ?> ">
+            <a href="#">
+                <i class="fa fa-address-book"></i>
+                <span><?php echo get_phrase('gallery'); ?></span>
+            </a>
+            <ul>
+                <li class="<?php if ($page_name == 'upload') echo 'active'; ?> ">
+                    <a href="<?php echo base_url("index.php?project/upload_zone"); ?>">
+                        <span><i class="fa fa-bell-o"></i> <?php echo get_phrase('photo_upload'); ?></span>
+                    </a>
+                </li>
+
+                <li class="<?php if ($page_name == 'gallery') echo 'active'; ?> ">
+					<a href="<?php echo base_url("index.php?project/gallery"); ?>">
+                        <span><i class="entypo-briefcase"></i> <?php echo get_phrase('view_photo'); ?></span>
+                    </a>
+                </li> 
                 
-            </div>
+                <!--<li class="<?php if ($page_name == 'trash') echo 'active'; ?> ">
+                    <a href="<?php echo base_url("index.php?project/trash"); ?>">
+                        <span><i class="fa fa-trash-o"></i> <?php echo get_phrase('trash'); ?></span>
+                    </a>
+                </li>-->
+                
+                              
+            </ul>
+        </li>
 
-    	</div>
-    </div>
-	
+
+        <!-- ACCOUNT -->
+        <li class="<?php if ($page_name == 'manage_profile') echo 'active'; ?> ">
+            <a href="<?php echo base_url(); ?>index.php?project/manage_profile">
+                <i class="entypo-lock"></i>
+                <span><?php echo get_phrase('account'); ?></span>
+            </a>
+        </li>
+
+    </ul>
+
 </div>
-
-
-
-    <script>
-  $(document).ready(function() {
-	  
-	  var calendar = $('#notice_calendar');
-				
-				$('#notice_calendar').fullCalendar({
-					header: {
-						left: 'title',
-						right: 'today prev,next'
-					},
-					
-					//defaultView: 'basicWeek',
-					
-					editable: false,
-					firstDay: 1,
-					height: 530,
-					droppable: false,
-					
-					events: [
-						<?php 
-						$notices	=	$this->db->get('noticeboard')->result_array();
-						foreach($notices as $row):
-						?>
-						{
-							title: "<?php echo $row['notice_title'];?>",
-							start: new Date(<?php echo date('Y',$row['create_timestamp']);?>, <?php echo date('m',$row['create_timestamp'])-1;?>, <?php echo date('d',$row['create_timestamp']);?>),
-							end:	new Date(<?php echo date('Y',$row['create_timestamp']);?>, <?php echo date('m',$row['create_timestamp'])-1;?>, <?php echo date('d',$row['create_timestamp']);?>) 
-						},
-						<?php 
-						endforeach
-						?>
-						
-					]
-				});
-	});
-  </script>
-
-  

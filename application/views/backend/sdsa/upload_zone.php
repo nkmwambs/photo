@@ -139,7 +139,7 @@
           thumbnailWidth: 80,
           thumbnailHeight: 80,
           parallelUploads: 20,
-          maxFilesize:1,
+          //maxFilesize:1,
           previewTemplate: previewTemplate,
           autoQueue: false, // Make sure the files aren't queued until manually added
           previewsContainer: "#previews", // Define the container to display the previews

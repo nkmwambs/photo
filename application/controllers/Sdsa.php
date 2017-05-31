@@ -20,6 +20,7 @@ class Sdsa extends CI_Controller
 		$this->load->database();
         $this->load->library('session');
 		$this->load->library('zip');
+		$this->load->model('listing_model','listing');
 		//$this->load->helper('zipArchive');
 		
        /*cache control*/
@@ -74,6 +75,7 @@ class Sdsa extends CI_Controller
 		
 		$this->search_photo($this->session->userdata('locate'),$page);
 	}
+	
 	
 	function search_photo($param1="",$param2=""){
         if ($this->session->userdata('sdsa_login') != 1)
@@ -166,12 +168,48 @@ class Sdsa extends CI_Controller
         $page_data['page_title'] = get_phrase('gallery');
         $this->load->view('backend/index', $page_data);			
 	}
-	
+	 
+	 
+	/**
+	function search_photo(){
+   	$photos = $this->listing->get_datatables();
+		$data = array();
+		//$no = $_POST['start'];
+		$photo_status = array("","New","Accepted","Rejected","Reinstated");
+		foreach ($photos as $photo) {
+			
+			$row = array();
+			$action_data['status'] = $photo->status;
+			$action_data['id'] = $photo->id;
+			$row[] = "<input type='checkbox' class='chkPhoto' value='".$photo->id."'  name='image[".$photo->id."]'/>";
+			$row[] = $this->load->view("backend/sdsa/photo_action",$action_data,TRUE);
+			$row[] = '<a href="#" onclick="showAjaxModal(\''.base_url().'index.php?modal/popup/modal_full_photo/'.$photo->id.'\');"><img src="'.base_url().'uploads/thumbnails/'.$photo->file_name.'"/></a>';
+			$row[] = $photo->group;
+			$row[] = $photo->file_name;
+			$row[] = $photo->created;
+			$row[] = $photo->modified;
+			$row[] = $photo_status[$photo->status];
+			
+			
+			
+			$data[] = $row;
+		}
+
+		$output = array(
+						"draw" => $_POST['draw'],
+						"recordsTotal" => $this->listing->count_all(),
+						"recordsFiltered" => $this->listing->count_filtered(),
+						"data" => $data,
+				);
+		//output to json format
+		echo json_encode($output);		
+	}
+	**/
 	function gallery($param1=""){
         if ($this->session->userdata('sdsa_login') != 1)
             redirect(base_url(), 'refresh');
 	
-			
+		
         $page_data['page_name']  = 'gallery';
         $page_data['page_title'] = get_phrase('gallery');
         $this->load->view('backend/index', $page_data);		
@@ -237,6 +275,17 @@ class Sdsa extends CI_Controller
 		thumbnail('uploads/photos/'.$project.'/'.$_FILES['file']['name'], 100, 100);
 
        
+	}
+
+	function process_photo($param1="",$param2=""){
+		if($param1==='accept'){
+			$this->db->where('id',$param2);
+			$data['status'] = '2';
+			
+			$this->db->update('files',$data);			
+		}
+		
+		$this->search_photo();
 	}
     
 	function accept_photo($param1=""){
@@ -453,6 +502,8 @@ class Sdsa extends CI_Controller
 	}
 	
 	function image_action($param1="",$param2=""){
+		
+		ob_start();
 			
 		$selected_images = $this->input->post('image');
 		
@@ -520,7 +571,7 @@ class Sdsa extends CI_Controller
 			}
 				
 
-				redirect(base_url() . 'index.php?sdsa/search_photo/'.$this->session->userdata('locate').'/'.$this->session->userdata('page_num'), 'refresh');	
+				//redirect(base_url() . 'index.php?sdsa/search_photo/'.$this->session->userdata('locate').'/'.$this->session->userdata('page_num'), 'refresh');	
 		
 		}else{
 			
@@ -542,12 +593,14 @@ class Sdsa extends CI_Controller
 				
 			endforeach;
 			
-				$this->session->set_flashdata('flash_message',get_phrase('photo_status_changed'));
+				//$this->session->set_flashdata('flash_message',get_phrase('photo_status_changed'));
 
-				redirect(base_url() . 'index.php?sdsa/search_photo/'.$this->session->userdata('locate').'/'.$this->session->userdata('page_num'), 'refresh');			
-		}		
+				//redirect(base_url() . 'index.php?sdsa/search_photo/'.$this->session->userdata('locate').'/'.$this->session->userdata('page_num'), 'refresh');			
+		}
+				
+		ob_end_clean();
 		
-		
+		$this->search_photo();
 	}
 
 	public function trash($param1=""){

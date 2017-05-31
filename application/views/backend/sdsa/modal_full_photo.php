@@ -54,6 +54,26 @@ $photo = $this->file->getRows($param2);
 						
 						<div class="btn btn-info btn-icon"><i class="fa fa-rotate-right"></i><?=get_phrase('right_rotate');?></div>
 				</div>
+				
+						<?php
+							$file_path = base_url().'uploads/photos/'.$photo['group'].'/'.$photo['file_name'];
+							$image = getimagesize($file_path);
+							$type = explode("/",$image['mime']);
+							$file_name = basename(base_url().'uploads/photos/'.$photo['group'].'/'.$photo['file_name']);
+							$file_arr = explode('.', $file_name);
+							$file_base = $file_arr['0'];
+						?>
+						
+						<div class="col-sm-6">
+							<table class="table" width="50">
+								<tr><td><?php echo get_phrase('height');?></td><td><?php echo $image['1'];?></td></tr>
+								<tr><td><?php echo get_phrase('width');?></td><td><?php echo $image['0'];?></td></tr>
+								<tr><td><?php echo get_phrase('size');?></td><td><?php echo human_filesize(filesize('uploads/photos/'.$photo['group'].'/'.$photo['file_name']));?></td></tr>
+								<tr><td><?php echo get_phrase('type');?></td><td><?php echo $type['1'];?></td></tr>
+								<tr><td><?php echo get_phrase('file');?></td><td><?php echo $file_base;?></td></tr>
+								<tr><td><?php echo get_phrase('date');?></td><td><?php echo date("j M Y",strtotime($photo['created'])); ?></td></tr>
+							</table>
+						</div>
 			
 		</div>
 	</div>

@@ -101,7 +101,7 @@ class Login extends CI_Controller {
 				if($query->row()->level==='4'){	
 		            $row = $query->row();
 		            $this->session->set_userdata('project_login', '1');
-		            $this->session->set_userdata('project_id', $row->users_id);
+		            $this->session->set_userdata('project_id', $this->db->get_where('projects',array('user'=>$row->users_id))->row()->num);
 		            $this->session->set_userdata('login_user_id', $row->users_id);
 		            $this->session->set_userdata('name', $row->name);
 		            $this->session->set_userdata('login_type', 'project');
