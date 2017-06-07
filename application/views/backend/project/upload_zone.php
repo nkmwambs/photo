@@ -143,7 +143,7 @@
           paramName: "file",
           thumbnailWidth: 80,
           thumbnailHeight: 80,
-          parallelUploads: 20,
+          parallelUploads: 50,
           //maxFilesize:2,
           previewTemplate: previewTemplate,
           autoQueue: false, // Make sure the files aren't queued until manually added
@@ -156,7 +156,7 @@
         	
         	if(file.name.length!==15){
         		this.removeFile(file);
-        		$('#errMsg').append(file.name+'- Not listed due to a wrong file name <br/>')
+        		$('#errMsg').append(file.name+'- Not listed. Wrong file name <br/>')
         	}
         	
         		
@@ -193,6 +193,31 @@
         // Hide the total progress bar when nothing's uploading anymore
         myDropzone.on("queuecomplete", function(progress) {
           document.querySelector("#total-progress").style.opacity = "0";
+          //alert('Upload Done');
+          var opts = {
+          				title:'Send mail notification',
+		            	message: 'Please click on the \'Send a Mail\' button to send a mail notification to your SDSA and PF on the new photos uploaded',
+		            	draggable:true,
+		            	buttons:[
+		            		{
+				                icon: 'glyphicon glyphicon-send',
+				                label: 'Send a Mail',
+				                cssClass: 'btn-info login-dialog',
+				                action: function(dialogRef){
+				                    
+				                }
+				            },
+		            		{
+		            			label:'Close',
+		            			cssClass:'btn-warning',
+		            			hotkey:13,
+		            			action:function(dialog){
+		            				dialog.close();
+		            			}
+		            		}
+		            	]
+          }
+          BootstrapDialog.show(opts);
         });
         
         // Setup the buttons for all transfers

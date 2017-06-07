@@ -81,6 +81,8 @@ function upload_zone(){
 				
 				$this->load->library('upload', $config);
 				$this->upload->initialize($config);
+
+
 				if($this->upload->do_upload('file')){
 					$fileData = $this->upload->data();
 					$uploadData['file_name'] = $fileData['file_name'];
@@ -90,15 +92,53 @@ function upload_zone(){
 				}
 							
 				
-		
+
 			if(!empty($uploadData)){
 				//Insert files data into the database
 				$insert = $this->file->insert($uploadData);
+
 				//$statusMsg = $insert?'Files uploaded successfully.':'Some problem occurred, please try again.';
 				//$this->session->set_flashdata('flash_message' , $statusMsg);
 			}
-		
-		
+			
+			
+			if($img_count==='1'){
+				
+				$from_email = 'admin@compassionkenya.com';//$this->db->get_where('users',array('users_id'=>$this->session->login_user_id))->row()->email;
+				$from_name = 'Photo Manager';//$this->db->get_where('users',array('users_id'=>$this->session->login_user_id))->row()->name;
+				
+				//$icp_email = $this->db->get_where('users',array('users_id'=>$this->session->login_user_id))->row()->email;
+				
+				$sdsa_users_id = $this->db->get_where('projects',array('num'=>$project))->row()->sdsa;
+				$sdsa_email = $this->db->get_where('users',array('users_id'=>$sdsa_users_id))->row()->email;
+				
+				//$facilitator_users_id = $this->db->get_where('projects',array('num'=>$project))->row()->facilitator;
+				//$facilitator_email = $this->db->get_where('users',array('users_id'=>$facilitator_users_id))->row()->email;				 
+				
+				/**$this->email->from($from_email, $from_name);
+				$this->email->to($sdsa_email);
+				$this->email->cc($facilitator_email);
+				$this->email->bcc($icp_email);
+				
+				$this->email->subject('Beneficiary Photos from '.$project);
+				$this->email->message($body_str);
+				
+				$this->email->send();
+				 * 
+				 */
+				 // the message
+				//$msg = "First line of text\nSecond line of text";
+				
+				// use wordwrap() if lines are longer than 70 characters
+				$body_str = 'You have Photos from '.$project;
+				$body_str = wordwrap($body_str,70);
+				
+				// send email
+				//$cc = array($facilitator_email,$icp_email);
+				$headers = 'From: Photo Manager <admin@compassionkenya.com' . "\r\n";
+				//$headers .= 'CC: '. implode(",", $to) . "\r\n";
+				mail($sdsa_email,'Beneficiary Photos from '.$project,$body_str,$headers);
+			}
 		
 		thumbnail('uploads/photos/'.$project.'/'.$_FILES['file']['name'], 100, 100);
 

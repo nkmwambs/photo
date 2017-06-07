@@ -41,7 +41,11 @@ class Sdsa extends CI_Controller
     {
         if ($this->session->userdata('sdsa_login') != 1)
             redirect(base_url(), 'refresh');
-			
+		
+		$page_data['trash_count']  = count(file_list('/uploads/trash/'));
+		//$group = $this->db->get_where('projects',array('sdsa'=>$this->session->login_user_id))->row()->num;
+		$page_data['new_count']  = $this->db->join('projects','projects.num=files.group')->get_where('files',array('status'=>'1','sdsa'=>$this->session->login_user_id))->num_rows();	
+        	
         $page_data['page_name']  = 'dashboard';
         $page_data['page_title'] = get_phrase('SDSA_dashboard');
         $this->load->view('backend/index', $page_data);
@@ -76,7 +80,7 @@ class Sdsa extends CI_Controller
 		$this->search_photo($this->session->userdata('locate'),$page);
 	}
 	
-	
+/**
 	function search_photo($param1="",$param2=""){
         if ($this->session->userdata('sdsa_login') != 1)
             redirect(base_url(), 'refresh');
@@ -169,8 +173,8 @@ class Sdsa extends CI_Controller
         $this->load->view('backend/index', $page_data);			
 	}
 	 
-	 
-	/**
+	**/ 
+	
 	function search_photo(){
    	$photos = $this->listing->get_datatables();
 		$data = array();
@@ -181,7 +185,8 @@ class Sdsa extends CI_Controller
 			$row = array();
 			$action_data['status'] = $photo->status;
 			$action_data['id'] = $photo->id;
-			$row[] = "<input type='checkbox' class='chkPhoto' value='".$photo->id."'  name='image[".$photo->id."]'/>";
+			$action_data['downloaded'] = $photo->downloaded;
+			$row[] = "<input type='checkbox' class='chkPhoto' value='".$photo->file_name."'  name='image[]'/>";
 			$row[] = $this->load->view("backend/sdsa/photo_action",$action_data,TRUE);
 			$row[] = '<a href="#" onclick="showAjaxModal(\''.base_url().'index.php?modal/popup/modal_full_photo/'.$photo->id.'\');"><img src="'.base_url().'uploads/thumbnails/'.$photo->file_name.'"/></a>';
 			$row[] = $photo->group;
@@ -204,11 +209,17 @@ class Sdsa extends CI_Controller
 		//output to json format
 		echo json_encode($output);		
 	}
-	**/
+	
 	function gallery($param1=""){
         if ($this->session->userdata('sdsa_login') != 1)
             redirect(base_url(), 'refresh');
 	
+	
+		$page_data['trash_count']  = count(file_list('/uploads/trash/'));
+		//$group = $this->db->get_where('projects',array('sdsa'=>$this->session->login_user_id))->row()->num;
+		$page_data['new_count']  = $this->db->join('projects','projects.num=files.group')->get_where('files',array('status'=>'1','sdsa'=>$this->session->login_user_id))->num_rows();	
+        
+		$page_data['delete_array'] = array('accepted'=>5,'new'=>10,'declined'=>1,'reinstated'=>0,'old'=>11);
 		
         $page_data['page_name']  = 'gallery';
         $page_data['page_title'] = get_phrase('gallery');
@@ -219,7 +230,10 @@ class Sdsa extends CI_Controller
         if ($this->session->userdata('sdsa_login') != 1)
             redirect(base_url(), 'refresh');
 	
-			
+		$page_data['trash_count']  = count(file_list('/uploads/trash/'));
+		//$group = $this->db->get_where('projects',array('sdsa'=>$this->session->login_user_id))->row()->num;
+		$page_data['new_count']  = $this->db->join('projects','projects.num=files.group')->get_where('files',array('status'=>'1','sdsa'=>$this->session->login_user_id))->num_rows();	
+        	
         $page_data['page_name']  = 'upload_zone';
         $page_data['page_title'] = get_phrase('upload_zone');
         $this->load->view('backend/index', $page_data);		
@@ -298,7 +312,8 @@ class Sdsa extends CI_Controller
 		$this->db->update('files',$data);
 		
 		$this->session->set_flashdata('flash_message',get_phrase('accepted_successful'));
-		redirect(base_url() . 'index.php?sdsa/search_photo/'.$this->session->userdata('locate').'/'.$this->session->userdata('page_num'), 'refresh');
+		redirect(base_url() . 'index.php?sdsa/gallery/', 'refresh');
+	
 	}
 	
 	function reject_photo($param1=""){//reinstate_photo
@@ -318,8 +333,29 @@ class Sdsa extends CI_Controller
 		$this->db->insert('reasons',$data2);
 		
 		$this->session->set_flashdata('flash_message',get_phrase('rejected_successful'));
-		redirect(base_url() . 'index.php?sdsa/search_photo/'.$this->session->userdata('locate').'/'.$this->session->userdata('page_num'), 'refresh');
+		redirect(base_url() . 'index.php?sdsa/gallery/', 'refresh');
 		
+	}
+
+	function add_comment_photo($param1=""){
+        if ($this->session->userdata('sdsa_login') != 1)
+            redirect(base_url(), 'refresh');
+		
+		$this->db->where('id',$param1);
+		//$data['status'] = '3';
+		
+		//$this->db->update('files',$data);
+		
+		$data2['photo_id'] = $param1;
+		$data2['reason_by'] = $this->session->userdata('login_user_id');
+		$data2['reason'] = $this->input->post('reject_reason');
+		$data2['comment_status'] = $this->db->get_where('files',array('id'=>$param1))->row()->status;
+		
+		$this->db->insert('reasons',$data2);
+		
+		$this->session->set_flashdata('flash_message',get_phrase('comment_added_successful'));
+		redirect(base_url() . 'index.php?sdsa/gallery/', 'refresh');
+	
 	}
 
 	function reinstate_photo($param1=""){
@@ -331,15 +367,8 @@ class Sdsa extends CI_Controller
 		
 		$this->db->update('files',$data);
 		
-		//$data2['photo_id'] = $param1;
-		//$data2['reason_by'] = $this->session->userdata('login_user_id');
-		//$data2['reason'] = $this->input->post('reject_reason');
-		//$data2['comment_status'] = '3';
-		
-		//$this->db->insert('reasons',$data2);
-		
 		$this->session->set_flashdata('flash_message',get_phrase('reinstated_successful'));
-		redirect(base_url() . 'index.php?sdsa/search_photo/', 'refresh');
+		redirect(base_url() . 'index.php?sdsa/gallery/', 'refresh');
 		
 	}
 	
@@ -400,7 +429,23 @@ class Sdsa extends CI_Controller
 		
 		redirect(base_url() . 'index.php?sdsa/manage_profile/', 'refresh');
 		
+	}
+	
+	function manage_user_links($param1="",$param2=""){
+		//echo "Cool";
+		$this->db->where('projects_id',$param2);
+		
+		$data[$param1] = 0;
+		
+		$this->db->update('projects',$data);
+		
+		if($this->db->affected_rows()){
+			echo get_phrase('unlink_successful');
+		}else{
+			echo get_phrase('unlink_failure');
+		}
 	}	
+	
 	function manage_profile($param1="",$param2="",$param3=""){
 		if ($this->session->userdata('sdsa_login') != 1)
             redirect(base_url(), 'refresh');
@@ -467,23 +512,62 @@ class Sdsa extends CI_Controller
 				redirect(base_url() . 'index.php?sdsa/manage_profile/', 'refresh');	
 		}
 		
+		$page_data['trash_count']  = count(file_list('/uploads/trash/'));
+		//$group = $this->db->get_where('projects',array('sdsa'=>$this->session->login_user_id))->row()->num;
+		$page_data['new_count']  = $this->db->join('projects','projects.num=files.group')->get_where('files',array('status'=>'1','sdsa'=>$this->session->login_user_id))->num_rows();	
+        
 		$page_data['page_name']  = 'manage_profile';
         $page_data['page_title'] = get_phrase('manage_profile');
         $this->load->view('backend/index', $page_data);
 	}
 	
-	function download_accepted($param1="",$param2=""){		
+	function check_projects($param1=""){
+		//echo $param1;
 		
-		$files = $this->db->get_where('files',array('group'=>$param1,'status'=>$param2))->result_object();
+		$projects = $this->db->distinct()->select('group')->get_where('files',array('status'=>$param1))->result_object();
+			
+		echo json_encode($projects);	
+	}
+	
+	function download_selected(){
+		
+		$group = $this->input->post('group');	
+		
+		$status = $this->input->post('status');	
+		
+		$files = $this->db->get_where('files',array('group'=>$group,'status'=>$status))->result_object();
+		
+		if($status==='all' && $group!=='all'){
+			$files = $this->db->get_where('files',array('group'=>$group))->result_object();
+		}	
+		
+		if($group==='all' && $status!=='all'){
+			$files = $this->db->get_where('files',array('status'=>$status))->result_object();
+		}
+			//$files = $this->db->get_where('files',array('group'=>$group,'status'=>$status))->result_object();
+		
+		if($group==='all' && $status==='all'){
+			$files = $this->db->get_where('files')->result_object();
+		}
+		
 		
 		foreach($files as $rows):
 			
 			$name = $rows->file_name;
 			
-			$path = 'uploads/photos/'.$param1.'/'.$rows->file_name;
+			$path = 'uploads/photos/'.$group.'/'.$rows->file_name;
 			
 			$data = file_get_contents($path);
 		
+			//Mark dowloaded
+			$id = $this->db->get_where('files',array('file_name'=>$rows->file_name))->row()->id;
+			$this->db->where('id',$id);
+			$data_update['downloaded'] = '1';
+				
+			$this->db->update('files',$data_update);
+			
+			//Add to Zip File
+			
 			$this->zip->add_data($name, $data);
 			
 		endforeach;
@@ -499,26 +583,133 @@ class Sdsa extends CI_Controller
 		
 		unlink('downloads/'.$backup_file);
 		
+		foreach($files as $rows){
+			
+			if($this->input->post('delete')==='1'){	
+				$this->delete_all_photos($id);
+			}
+		}
+		
+	}
+	
+	function delete_photo($param1=""){
+		
+				
+			$cnt_deleted = 0;	
+				
+			//foreach($selected_images as $key=>$image):
+				if($this->db->get_where('files',array('id'=>$param1))->row()->status==='1' || $this->db->get_where('files',array('id'=>$param1))->row()->status==='3'){
+					
+					if(!file_exists('uploads/trash/')){
+						mkdir('uploads/trash/');
+					}	
+						
+					$this->db->where(array('id'=>$param1));
+				
+					$data['status'] = 5;
+				
+					$this->db->update('files',$data);
+					
+					//Move to trash
+					
+					$group = $this->db->get_where('files',array('id'=>$param1))->row()->group;
+					
+					$image = $this->db->get_where('files',array('id'=>$param1))->row()->file_name;
+					
+					copy('uploads/photos/'.$group.'/'.$image, 'uploads/trash/'.$image);
+					
+					
+					//Delete the Image
+					
+					unlink('uploads/photos/'.$group.'/'.$image);
+					
+					++$cnt_deleted;
+				}
+				
+				
+				
+			//endforeach;
+			
+			if($cnt_deleted>0){
+				$this->session->set_flashdata('flash_message',get_phrase('photo_deleted').' ('.$cnt_deleted.')');
+			}else{
+				$this->session->set_flashdata('flash_message',get_phrase('no_photo_deleted'));
+			}
+				
+
+			redirect(base_url() . 'index.php?sdsa/gallery/', 'refresh');	
+		
+		
+	}
+
+	function delete_all_photos($param1=""){
+		
+				
+			$cnt_deleted = 0;	
+				
+			//foreach($selected_images as $key=>$image):
+				//if($this->db->get_where('files',array('id'=>$param1))->row()->status==='1' || $this->db->get_where('files',array('id'=>$param1))->row()->status==='3'){
+					
+					if(!file_exists('uploads/trash/')){
+						mkdir('uploads/trash/');
+					}	
+						
+					$this->db->where(array('id'=>$param1));
+				
+					$data['status'] = 5;
+				
+					$this->db->update('files',$data);
+					
+					$cnt_deleted = $this->db->affected_rows();
+					
+					//Move to trash
+					
+					$group = $this->db->get_where('files',array('id'=>$param1))->row()->group;
+					
+					$image = $this->db->get_where('files',array('id'=>$param1))->row()->file_name;
+					
+					copy('uploads/photos/'.$group.'/'.$image, 'uploads/trash/'.$image);
+					
+					
+					//Delete the Image
+					
+					unlink('uploads/photos/'.$group.'/'.$image);
+					
+					
+				//}
+				
+				
+				
+			//endforeach;
+			
+			if($cnt_deleted>0){
+				$this->session->set_flashdata('flash_message',get_phrase('photo_deleted').' ('.$cnt_deleted.')');
+			}else{
+				$this->session->set_flashdata('flash_message',get_phrase('no_photo_deleted'));
+			}
+				
+
+			redirect(base_url() . 'index.php?sdsa/gallery/', 'refresh');	
+		
+		
 	}
 	
 	function image_action($param1="",$param2=""){
-		
-		ob_start();
 			
 		$selected_images = $this->input->post('image');
 		
-		if($param2==="download_selected"){
+		if($param1==="download_selected"){
 			
 			foreach($selected_images as $key=>$image):
 				
-				//$name = $rows->file_name;
+				$group = $this->db->get_where('files',array('file_name'=>$image))->row()->group;
 				
-				$path = 'uploads/photos/'.$param1.'/'.$image;
+				$path = base_url().'uploads/photos/'.$group.'/'.$image;
 				
 				$data = file_get_contents($path);
 			
 				$this->zip->add_data($image, $data);
-				
+			
 			endforeach;
 			
 			// Write the zip file to a folder on your server. Name it "my_backup.zip"
@@ -531,7 +722,16 @@ class Sdsa extends CI_Controller
 			$this->zip->download($backup_file);
 			
 			unlink('downloads/'.$backup_file);
-		}elseif($param2==="del_selected") {
+			
+			foreach($selected_images as $key=>$image){
+				$id = $this->db->get_where('files',array('file_name'=>$image))->row()->id;
+				$this->db->where('id',$id);
+				$data_update['downloaded'] = '1';
+				
+				$this->db->update('files',$data_update);
+			}
+			
+		}elseif($param1==="del_selected") {
 				
 			$cnt_deleted = 0;	
 				
@@ -598,9 +798,8 @@ class Sdsa extends CI_Controller
 				//redirect(base_url() . 'index.php?sdsa/search_photo/'.$this->session->userdata('locate').'/'.$this->session->userdata('page_num'), 'refresh');			
 		}
 				
-		ob_end_clean();
 		
-		$this->search_photo();
+		$this->gallery();
 	}
 
 	public function trash($param1=""){

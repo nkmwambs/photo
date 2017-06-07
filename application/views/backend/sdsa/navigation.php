@@ -41,7 +41,7 @@
         <!-- Gallery -->       
         
         <li class="<?php
-        if ($page_name == 'upload' ||
+        if ($page_name == 'upload_zone' ||
                     $page_name == 'gallery'||
 					$page_name == 'trash')
                         echo 'opened active';
@@ -51,33 +51,23 @@
                 <span><?php echo get_phrase('gallery'); ?></span>
             </a>
             <ul>
-                <li class="<?php if ($page_name == 'upload') echo 'active'; ?> ">
+                <li class="<?php if ($page_name == 'upload_zone') echo 'active'; ?> ">
                     <a href="<?php echo base_url("index.php?sdsa/upload_zone"); ?>">
                         <span><i class="fa fa-bell-o"></i> <?php echo get_phrase('photo_upload'); ?></span>
                     </a>
                 </li>
 
                 <li class="<?php if ($page_name == 'gallery') echo 'active'; ?> ">
-                	<?php 
-                	if($this->session->userdata('locate')){
-                	?>
-                    	<a href="<?php echo base_url("index.php?sdsa/search_photo/".$this->session->userdata('locate').'/'.$this->session->userdata('page_num')); ?>">
-                    <?php 
-					}else{
-                	?>
-                	
-                		<a href="<?php echo base_url("index.php?sdsa/gallery"); ?>">
-                	
-                	<?php 
-                	}
-                	?>
+                			<a href="<?php echo base_url("index.php?sdsa/gallery"); ?>">
                         <span><i class="entypo-briefcase"></i> <?php echo get_phrase('view_photo'); ?></span>
-                    </a>
+                        <span class="badge badge-info"><?php echo $new_count;?></span>
+                   </a> 
                 </li> 
                 
                 <li class="<?php if ($page_name == 'trash') echo 'active'; ?> ">
                     <a href="<?php echo base_url("index.php?sdsa/trash"); ?>">
                         <span><i class="fa fa-trash-o"></i> <?php echo get_phrase('trash'); ?></span>
+                        <span class="badge badge-info"><?php echo $trash_count;?></span>
                     </a>
                 </li>
                 

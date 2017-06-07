@@ -10,14 +10,14 @@
 			                 </a>
 			            </li> 
 			            
-			           <!-- <li class="divider"></li>
+			           <li class="divider"></li>
 			            
 			            <li>
-			                 <a href="#" onclick="confirm_action('<?php echo base_url();?>index.php?project/process_photo/delete/<?php echo $id;?>');">
-			                        <i class="fa fa-trash-o"></i>
-										<?php echo get_phrase('delete');?>
+			                 <a href="#" onclick="showAjaxModal('<?php echo base_url();?>index.php?modal/popup/modal_reject_reason/<?php echo $id;?>');">
+			                        <i class="fa fa-address-card-o"></i>
+										<?php echo get_phrase('comments');?>
 			                 </a>
-			            </li> -->
+			            </li>
 				</ul>
 </div>
 					

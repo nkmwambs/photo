@@ -240,7 +240,7 @@ $user = $this->db->get_where('users',array('users_id'=>$this->session->userdata(
 						                    </button>
 						                    <ul class="dropdown-menu dropdown-default pull-right" role="menu">
 						                        
-						                        <!-- Edit -->
+						                        <!-- Edit Project-->
 						                        <li>
 						                        	<a href="#" id="" onclick="showAjaxModal('<?php echo base_url();?>index.php?modal/popup/modal_edit_project/<?php echo $rows->projects_id;?>');">
 						                            	<i class="entypo-pencil"></i>
@@ -250,7 +250,7 @@ $user = $this->db->get_where('users',array('users_id'=>$this->session->userdata(
 						                        
 						                        <li class="divider"></li>
 						                        
-						                        <!--Delete -->
+						                        <!--Edit Links -->
 						                        <li>
 						                        	<a href="#" id="" onclick="showAjaxModal('<?php echo base_url();?>index.php?modal/popup/modal_edit_links/<?php echo $rows->projects_id;?>');">
 						                            	<i class="fa fa-archive"></i>
